@@ -1,10 +1,16 @@
 import { Router } from "express";
-import { authentication } from "../authentication/auth.js";
-import { getMessage, sendMessage } from "../controllers/messageController.js";
+import { authentication } from "../middleware/auth.js";
+import { getMessages, sendMessage } from "../controllers/messageController.js";
+import upload from "../middleware/multer.js";
 
 const router = Router();
 
-router.post("/send_message", authentication, sendMessage);
-router.get("/message/:convoId", authentication, getMessage);
+router.post(
+  "/send_message",
+  authentication,
+  upload.single("image"),
+  sendMessage,
+);
+router.get("/message/:convoId", authentication, getMessages);
 
 export default router;
