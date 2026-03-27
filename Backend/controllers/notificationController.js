@@ -7,7 +7,7 @@ export const getNotification = async (req, res) => {
       .sort({
         createdAt: -1,
       })
-      .populate("sender reciever");
+      .populate("sender receiver");
 
     return res.status(200).json({ notification });
   } catch (error) {
