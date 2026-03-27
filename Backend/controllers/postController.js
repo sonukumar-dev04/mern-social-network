@@ -10,16 +10,26 @@ export const createPost = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+    if (!req.body.body && !req.file) {
+      return res.status(400).json({ error: "Post must have text or image" });
+    }
+
     const post = new Post({
       userId: user._id,
-      body: req.body.body,
-      media: req.file != undefined ? req.file.filename : "",
-      filetype: req.file != undefined ? req.file.mimetype.split("/")[1] : "",
+      body: req.body.body || "",
+      media: req.file ? req.file.filename : "",
+      filetype: req.file ? req.file.mimetype.split("/")[1] : "",
     });
 
     await post.save();
+    const populatedPost = await Post.findById(post._id).populate(
+      "userId",
+      "name profilePicture",
+    );
 
-    return res.status(201).json({ message: "Post Created", post });
+    return res
+      .status(201)
+      .json({ message: "Post Created", post: populatedPost });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
@@ -30,7 +40,16 @@ export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate("userId", "name username email profilePicture coverPicture");
+      .populate("userId", "name username email profilePicture coverPicture")
+      .populate({
+        path: "userId",
+        populate: {
+          path: "profileId",
+          select:
+            "bio currentPost currentCompany currentLocation skills pastWork education",
+        },
+      });
+
     return res.json({ posts });
   } catch (error) {
     console.log(error);
@@ -41,18 +60,22 @@ export const getAllPosts = async (req, res) => {
 export const getPostById = async (req, res) => {
   try {
     const { postId } = req.params;
-    const post = await Post.findById(postId).populate(
-      "userId",
-      "name username email profilePicture coverPicture",
-    );
+    const post = await Post.findById(postId)
+      .populate("userId", "name username email profilePicture coverPicture")
+      .populate({
+        path: "userId",
+        populate: {
+          path: "profileId",
+          select:
+            "bio currentPost currentCompany currentLocation skills pastWork education",
+        },
+      });
 
     if (!post) {
       return res.status(404).json({ error: "No such post found" });
     }
 
-    return res.status(200).json({
-      post: post,
-    });
+    return res.status(200).json({ post });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
@@ -62,9 +85,17 @@ export const getPostById = async (req, res) => {
 export const getUserAllPosts = async (req, res) => {
   try {
     const { userId } = req.params;
-    const posts = await Post.find({ userId: userId })
+    const posts = await Post.find({ userId })
       .sort({ createdAt: -1 })
-      .populate("userId", "name username email profilePicture coverPicture");
+      .populate("userId", "name username email profilePicture coverPicture")
+      .populate({
+        path: "userId",
+        populate: {
+          path: "profileId",
+          select:
+            "bio currentPost currentCompany currentLocation skills pastWork education",
+        },
+      });
 
     return res.status(200).json({ posts });
   } catch (error) {
@@ -136,7 +167,7 @@ export const toggleLikePost = async (req, res) => {
         const content = `${user.name} liked your post`;
         const notification = new Notification({
           sender: userId,
-          reciever: post.userId._id,
+          receiver: post.userId._id,
           content,
           type: "like",
           postId: postId.toString(),
