@@ -6,28 +6,40 @@ export const addConversation = async (req, res) => {
     const senderId = req.user._id;
     const { receiverId, message } = req.body;
 
-    // Check if conversation already exists between sender and receiver
+    // Image from multer
+    const image = req.file ? req.file.filename : null;
+
+    if (!receiverId) {
+      return res.status(400).json({
+        error: "ReceiverId is required",
+      });
+    }
+
+    // Check if conversation already exists
     let conversation = await Conversation.findOne({
       members: { $all: [senderId, receiverId] },
     });
 
-    // If no conversation exists → create new
+    // Create new conversation if not exists
     if (!conversation) {
       conversation = new Conversation({
         members: [senderId, receiverId],
       });
+
       await conversation.save();
     }
 
-    // Add new message
+    // Create message
     const newMessage = new Message({
       sender: senderId,
       conversation: conversation._id,
       message,
+      image, // 👈 store image filename
     });
+
     await newMessage.save();
 
-    // Update conversation with latest message
+    // Update conversation last message
     conversation.lastMessage = newMessage._id;
     await conversation.save();
 
@@ -38,7 +50,10 @@ export const addConversation = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Server error", message: error.message });
+    res.status(500).json({
+      error: "Server error",
+      message: error.message,
+    });
   }
 };
 
