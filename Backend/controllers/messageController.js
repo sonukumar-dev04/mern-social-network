@@ -3,28 +3,32 @@ import Conversation from "../models/conversation.js";
 
 export const sendMessage = async (req, res) => {
   try {
-    const { conversation, message, picture } = req.body;
+    const { conversationId, message } = req.body;
 
-    // 1. Create and save the new message
+    let image = null;
+
+    if (req.file) {
+      image = req.file.filename;
+    }
+
     const newMessage = new Message({
       sender: req.user._id,
-      conversation,
+      conversation: conversationId,
       message,
-      picture,
+      image,
     });
+
     await newMessage.save();
 
-    // 2. Update conversation with latest message
-    const convo = await Conversation.findById(conversation);
+    const convo = await Conversation.findById(conversationId);
+
     if (convo) {
       convo.lastMessage = newMessage._id;
       await convo.save();
     }
 
-    // 3. Populate sender details for frontend
     const populatedMessage = await newMessage.populate("sender");
 
-    // 4. Return response
     return res.status(200).json({
       message: "Message sent successfully",
       data: populatedMessage,
@@ -35,18 +39,30 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-export const getMessage = async (req, res) => {
+export const getMessages = async (req, res) => {
   try {
     const { convoId } = req.params;
+
     const messages = await Message.find({ conversation: convoId })
-      .populate("sender")
+      .populate({
+        path: "sender",
+        select: "name username profilePicture profileId",
+        populate: {
+          path: "profileId",
+          select: "currentPost currentCompany",
+        },
+      })
       .sort({ createdAt: 1 });
 
-    return res
-      .status(200)
-      .json({ message: "Fetched Message Successfully", message });
+    res.status(200).json({
+      success: true,
+      messages,
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "server error", message: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
