@@ -6,25 +6,35 @@ export const findUser = async (req, res) => {
   try {
     const { query } = req.query;
 
+    if (!query || query.trim() === "") {
+      return res.status(400).json({
+        message: "Search query is required",
+      });
+    }
+
+    const search = query.trim();
+
     const users = await User.find({
-      $and: [
-        { _id: { $ne: req.user._id } },
-        {
-          $or: [
-            { name: { $regex: new RegExp(`^${query}`, "i") } },
-            { email: { $regex: new RegExp(`^${query}`, "i") } },
-          ],
-        },
+      _id: { $ne: req.user._id },
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { username: { $regex: search, $options: "i" } },
       ],
-    });
+    })
+      .select("name username profilePicture")
+      .limit(5)
+      .sort({ name: 1 });
 
     return res.status(200).json({
-      message: "Fetched Successfully",
+      message: "Users fetched successfully",
       users,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: error.message });
+    console.error("findUser error", error);
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 };
 
@@ -89,6 +99,40 @@ export const sendConnectionRequest = async (req, res) => {
   }
 };
 
+// Get Sent Requests
+export const getSentRequests = async (req, res) => {
+  try {
+    const senderId = req.user?._id;
+
+    if (!senderId) {
+      return res.status(401).json({ error: "Unauthorized: user not found" });
+    }
+
+    const sentRequests = await Connection.find({
+      userId: senderId,
+      status: null,
+    })
+      .populate("connectionId", "name profilePicture profileId")
+      .populate({
+        path: "connectionId",
+        populate: {
+          path: "profileId",
+          select: "currentPost currentCompany",
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "Fetched sent requests successfully",
+      requests: sentRequests || [],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Server error: " + error.message });
+  }
+};
+
+// Get Pending Requests
 export const getPendingRequests = async (req, res) => {
   try {
     const userId = req.user?._id;
@@ -101,16 +145,19 @@ export const getPendingRequests = async (req, res) => {
       connectionId: userId,
       status: null,
     })
-      .populate("userId", "name username email profilePicture")
+      .populate("userId", "name profilePicture profileId")
+      .populate({
+        path: "userId",
+        populate: {
+          path: "profileId",
+          select: "currentPost currentCompany",
+        },
+      })
       .sort({ createdAt: -1 });
-
-    if (!pendingRequests || pendingRequests.length === 0) {
-      return res.status(404).json({ error: "No pending requests found" });
-    }
 
     return res.status(200).json({
       message: "Fetched pending requests successfully",
-      requests: pendingRequests,
+      requests: pendingRequests || [],
     });
   } catch (error) {
     console.error(error);
@@ -183,7 +230,7 @@ export const respondToRequest = async (req, res) => {
 
 export const getConnectionsList = async (req, res) => {
   try {
-    const userId = req.user?._id;
+    const userId = req.query.userId || req.user?._id;
 
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized: user not found" });
@@ -193,12 +240,31 @@ export const getConnectionsList = async (req, res) => {
       status: true,
       $or: [{ userId: userId }, { connectionId: userId }],
     })
-      .populate("userId", "name username email profilePicture")
-      .populate("connectionId", "name username email profilePicture")
+      .populate({
+        path: "userId",
+        select: "name username email profilePicture profileId",
+        populate: {
+          path: "profileId",
+          select:
+            "bio currentPost currentCompany currentLocation skills pastWork education",
+        },
+      })
+      .populate({
+        path: "connectionId",
+        select: "name username email profilePicture profileId",
+        populate: {
+          path: "profileId",
+          select:
+            "bio currentPost currentCompany currentLocation skills pastWork education",
+        },
+      })
       .sort({ updatedAt: -1 });
 
     if (!connections || connections.length === 0) {
-      return res.status(404).json({ error: "No connections found" });
+      return res.status(200).json({
+        message: "No connections found",
+        connections: [],
+      });
     }
 
     const friendList = connections.map((conn) => {
@@ -212,6 +278,7 @@ export const getConnectionsList = async (req, res) => {
           username: friend.username,
           email: friend.email,
           profilePicture: friend.profilePicture,
+          profile: friend.profileId,
         },
         connectedAt: conn.updatedAt,
       };
