@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authentication } from "../authentication/auth.js";
+import { authentication } from "../middleware/auth.js";
 import {
   commentPost,
   deleteComment,
@@ -8,7 +8,7 @@ import {
 
 const router = Router();
 
-router.post("/", authentication, commentPost);
+router.post("/post_comment", authentication, commentPost);
 router.get("/comment/:postId", getCommentByPostId);
 router.delete("/comment/:commentId", authentication, deleteComment);
 
