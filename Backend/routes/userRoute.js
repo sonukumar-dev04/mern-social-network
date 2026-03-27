@@ -12,21 +12,10 @@ import {
   updateUserProfile,
   uploadPictures,
 } from "../controllers/userController.js";
-import { authentication } from "../authentication/auth.js";
-import multer from "multer";
+import { authentication } from "../middleware/auth.js";
+import upload from "../middleware/multer.js";
 
 const router = Router();
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
 
 router.post("/register", register);
 router.post("/login", login);
