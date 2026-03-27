@@ -42,7 +42,7 @@ export const commentPost = async (req, res) => {
     const content = `${user.name} commented on your post`;
     const notification = new Notification({
       sender: userId,
-      reciever: post.userId._id,
+      receiver: post.userId._id,
       content,
       type: "comment",
       postId: postId.toString(),
@@ -70,9 +70,16 @@ export const getCommentByPostId = async (req, res) => {
     }
 
     // Fetch comments for the post
-    const comments = await Comment.find({ postId: postId })
+    const comments = await Comment.find({ postId })
       .sort({ createdAt: -1 })
-      .populate("userId", "name username profilePicture");
+      .populate({
+        path: "userId",
+        select: "name username profilePicture profileId",
+        populate: {
+          path: "profileId",
+          select: "currentPost currentCompany",
+        },
+      });
 
     return res.status(200).json({ comments });
   } catch (error) {
