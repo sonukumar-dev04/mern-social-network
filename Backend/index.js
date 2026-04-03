@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { initSocket } from "./socket/index.js";
 
 import postRoutes from "./routes/postRoute.js";
 import userRoutes from "./routes/userRoute.js";
@@ -11,29 +14,37 @@ import commentRoutes from "./routes/commentRoute.js";
 import connectionRoutes from "./routes/connectionRoute.js";
 import conversationRoutes from "./routes/conversationRoute.js";
 import messageRoutes from "./routes/messageRoute.js";
+import storyRoutes from "./routes/storyRoute.js";
 
 dotenv.config();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  }),
-);
-
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static("uploads"));
+app.use("/uploads", express.static("uploads"));
 
-app.use(postRoutes);
-app.use(userRoutes);
-app.use(notificationRoutes);
-app.use(commentRoutes);
-app.use(connectionRoutes);
-app.use(conversationRoutes);
-app.use(messageRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/connections", connectionRoutes);
+app.use("/api/conversations", conversationRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/stories", storyRoutes);
+
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+initSocket(io);
 
 const port = process.env.PORT || 4000;
 
@@ -41,8 +52,7 @@ const start = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Database connected");
-
-    app.listen(port, () => {
+    httpServer.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
   } catch (err) {
