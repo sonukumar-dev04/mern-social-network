@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  downloadProfile,
   getAllUserProfile,
   getUserAndProfile,
   getUserProfileById,
@@ -34,7 +33,6 @@ router.get("/get_user_and_profile", authentication, getUserAndProfile);
 router.post("/update_profile_data", authentication, updateProfileData);
 router.get("/get_all_users", getAllUserProfile);
 router.get("/user/:id", getUserProfileById);
-router.get("/download_resume", downloadProfile);
 router.post("/update_profile", authentication, updateUserAndProfile);
 
 router.get("/self", authentication, (req, res) => {

@@ -2,45 +2,12 @@ import User from "../models/user.js";
 import Profile from "../models/profile.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import PDFDocument from "pdfkit";
-import crypto from "crypto";
-import fs from "fs";
 
 const cookieOptions = {
   httpOnly: true,
   secure: false,
   sameSite: "Lax",
   maxAge: 24 * 60 * 60 * 1000,
-};
-
-const ConvertUserDataToPdf = async (userData) => {
-  const doc = new PDFDocument();
-
-  const outputPath = crypto.randomBytes(32).toString("hex") + ".pdf";
-  const stream = fs.createWriteStream("uploads/" + outputPath);
-
-  doc.pipe(stream);
-  doc.image(`uploads/${userData.userId.profilePicture}`, {
-    align: "center",
-    width: 100,
-  });
-  doc.fontSize(14).text(`Name: ${userData.userId.name}`);
-  doc.fontSize(14).text(`Username: ${userData.userId.username}`);
-  doc.fontSize(14).text(`Email: ${userData.userId.email}`);
-  doc.fontSize(14).text(`Bio: ${userData.bio}`);
-  doc.fontSize(14).text(`Current Position: ${userData.currentPost}`);
-
-  doc.fontSize(14).text("Past Work:");
-  userData.pastWork.forEach((work, index) => {
-    doc.fontSize(14).text(`Company Name: ${work.companyName}`);
-    doc.fontSize(14).text(`Position : ${work.position}`);
-    doc.fontSize(14).text(`Years: ${work.years}`);
-    doc.fontSize(14).text(`Location: ${work.location}`);
-  });
-
-  doc.end();
-
-  return outputPath;
 };
 
 export const register = async (req, res) => {
@@ -228,31 +195,6 @@ export const getAllUserProfile = async (req, res) => {
       });
 
     return res.json({ users });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-export const downloadProfile = async (req, res) => {
-  try {
-    const user_id = req.query.id;
-
-    const user = await User.findById(user_id)
-      .select("name username email profilePicture coverPicture")
-      .populate({
-        path: "profileId",
-        select:
-          "bio currentPost currentCompany currentLocation skills pastWork education",
-      });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    let outputPath = await ConvertUserDataToPdf(user.profileId);
-
-    return res.json({ message: outputPath });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
