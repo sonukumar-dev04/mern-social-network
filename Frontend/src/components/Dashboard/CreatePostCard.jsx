@@ -1,15 +1,22 @@
 import { MdOutlineVideoCameraBack, MdOutlinePhoto } from "react-icons/md";
 import { FaRegNewspaper } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-const CreatePostCard = ({ onOpen }) => {
+const CreatePostCard = ({ onOpen, profile }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition duration-300">
       {/* Top Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center  gap-3">
         <img
-          src="https://i.pravatar.cc/100"
+          src={
+            profile?.profilePicture
+              ? `http://localhost:4000/uploads/${profile.profilePicture}`
+              : "http://localhost:4000/uploads/default_profile.jpg"
+          }
           alt="profile"
-          className="w-11 h-11 rounded-full object-cover"
+          onClick={() => navigate(`/profile/${profile._id}`)}
+          className="w-11 h-11 rounded-full object-cover cursor-pointer"
         />
 
         <button
