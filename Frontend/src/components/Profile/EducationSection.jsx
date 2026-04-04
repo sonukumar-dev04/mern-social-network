@@ -16,7 +16,7 @@ const EducationSection = ({ data, onEdit }) => {
                 {edu.school}
               </h3>
               <p className="text-sm text-gray-600">
-                {edu.degree} in {edu.field}
+                {edu.degree} in {edu.fieldOfStudy}
               </p>
             </div>
           </div>
