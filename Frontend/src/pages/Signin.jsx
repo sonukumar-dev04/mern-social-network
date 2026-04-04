@@ -1,59 +1,155 @@
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../redux/slices/authSlice";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+
+const InputField = ({ icon: Icon, error, rightElement, ...props }) => (
+  <div className="relative">
+    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+      <Icon size={17} strokeWidth={1.8} />
+    </div>
+    <input
+      {...props}
+      className={`w-full pl-10 pr-10 py-3 text-sm rounded-xl border bg-slate-50 text-slate-900 placeholder:text-slate-400
+        focus:outline-none focus:ring-2 focus:bg-white transition-all duration-200
+        ${
+          error
+            ? "border-red-400 focus:ring-red-200"
+            : "border-slate-200 focus:ring-blue-100 focus:border-blue-400"
+        }`}
+    />
+    {rightElement && (
+      <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+        {rightElement}
+      </div>
+    )}
+  </div>
+);
 
 const SignIn = () => {
-  return (
-    <div className="min-h-screen bg-gray-200 flex items-center justify-center">
-      <div className="bg-white w-full max-w-md p-8 rounded-xl shadow-md">
-        {/* Logo */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Pro
-            <span className="bg-blue-600 text-white px-2 ml-1 rounded-md">
-              net
-            </span>
-          </h1>
-        </div>
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((state) => state.auth);
 
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [localError, setLocalError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setLocalError(null);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      setLocalError("Email and password are required!");
+      return;
+    }
+    setLocalError(null);
+    dispatch(loginUser(formData)).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") navigate("/feed");
+    });
+  };
+
+  const displayError = localError || error;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 flex items-center justify-center px-4 py-10">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-6 sm:p-8">
         {/* Heading */}
-        <h2 className="text-2xl font-semibold text-center mb-2">Sign in</h2>
-        <p className="text-center text-gray-500 mb-6">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mb-1">
+          Sign in
+        </h2>
+        <p className="text-sm text-slate-400 mb-6 sm:mb-7">
           Stay updated on your professional world
         </p>
 
-        {/* Form */}
-        <form className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email address"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <div className="text-sm">
-            <a href="#" className="text-blue-600 hover:underline">
-              Forgot password?
-            </a>
+        {/* Error banner */}
+        {displayError && (
+          <div className="flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-5">
+            <AlertCircle size={16} strokeWidth={2} className="shrink-0" />
+            <span>{displayError}</span>
           </div>
+        )}
+
+        {/* Form */}
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <InputField
+            icon={Mail}
+            type="email"
+            name="email"
+            placeholder="Email address"
+            value={formData.email}
+            onChange={handleChange}
+            error={displayError && !formData.email}
+          />
+          <InputField
+            icon={Lock}
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            error={displayError && !formData.password}
+            rightElement={
+              <button
+                type="button"
+                onClick={() => setShowPassword((p) => !p)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+                tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff size={16} strokeWidth={1.8} />
+                ) : (
+                  <Eye size={16} strokeWidth={1.8} />
+                )}
+              </button>
+            }
+          />
 
           <button
             type="submit"
-            className="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-full font-semibold transition"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-bold py-3.5 rounded-full shadow-md shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 transition-all duration-200 mt-1"
           >
-            Sign in
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
+                </svg>
+                Signing in...
+              </span>
+            ) : (
+              "Sign in"
+            )}
           </button>
         </form>
 
         {/* Footer */}
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-sm mt-4 text-slate-500">
           New to Pronet?{" "}
           <Link
             to="/signup"
-            className="text-blue-600 font-medium hover:underline"
+            className="text-blue-600 font-semibold hover:underline"
           >
             Join now
           </Link>
