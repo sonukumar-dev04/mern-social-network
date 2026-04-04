@@ -1,5 +1,23 @@
-import { useState } from "react";
-import { userData as initialUserData, profileData as initialProfileData } from "../data/profileData";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+
+import {
+  getUserProfileById,
+  updateUserAndProfile,
+  updatePictures,
+} from "../redux/slices/userSlice";
+
+import {
+  getConnectionsList,
+  sendConnectionRequest,
+  getSentRequests,
+  getPendingRequests,
+} from "../redux/slices/connectionSlice";
+
+import { fetchUserPosts } from "../redux/slices/postSlice";
+import { logoutUser } from "../redux/slices/authSlice";
+import { addConversation } from "../redux/slices/conversationSlice";
 
 import ProfileHeader from "../components/Profile/ProfileHeader";
 import AboutSection from "../components/Profile/AboutSection";
@@ -9,61 +27,159 @@ import ExperienceSection from "../components/Profile/ExperienceSection";
 import ActivitySection from "../components/Profile/ActivitySection";
 import EditProfileModal from "../components/Profile/EditProfileModal";
 
-const Profile = () => {
-  const [userData, setUserData] = useState(initialUserData);
-  const [profileData, setProfileData] = useState(initialProfileData);
-  const [editType, setEditType] = useState(null);
+import MessageModal from "../components/Profile/messageModal/MessageModal";
 
-  const handleSave = (type, updatedData) => {
-    if (type === "header") {
-      setUserData(updatedData);
-    } else {
-      setProfileData((prev) => ({
-        ...prev,
-        [type]: updatedData,
-      }));
+const Profile = () => {
+  const { id } = useParams();
+  const userId = id;
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [editType, setEditType] = useState(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+
+  const { profile, loading: userLoading } = useSelector((state) => state.user);
+
+  const {
+    connections,
+    sentRequests,
+    pendingRequests,
+    loading: connLoading,
+  } = useSelector((state) => state.connections);
+
+  const { posts, loading: postLoading } = useSelector((state) => state.post);
+
+  const loggedInUser = useSelector((state) => state.auth.user);
+
+  const isOwnProfile = loggedInUser?._id === userId;
+
+  //  FETCH PROFILE DATA
+
+  useEffect(() => {
+    if (!userId) return;
+
+    dispatch(getUserProfileById(userId));
+    dispatch(getConnectionsList(userId));
+    dispatch(getSentRequests());
+    dispatch(getPendingRequests());
+    dispatch(fetchUserPosts(userId));
+  }, [userId, dispatch]);
+
+  if (userLoading || connLoading || postLoading) {
+    return <p className="text-center mt-10">Loading profile...</p>;
+  }
+
+  //  SAVE PROFILE DATA
+
+  const handleSave = async (type, updatedData) => {
+    try {
+      if (type === "pictures") {
+        await dispatch(updatePictures(updatedData)).unwrap();
+      } else {
+        await dispatch(updateUserAndProfile(updatedData)).unwrap();
+      }
+
+      setEditType(null);
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
+  };
+
+  //  SEND CONNECTION REQUEST
+
+  const handleConnect = async () => {
+    try {
+      await dispatch(sendConnectionRequest(userId)).unwrap();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Logout user
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      navigate("/signin");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
+
+  const handleSendMessage = async (formData) => {
+    try {
+      await dispatch(addConversation(formData)).unwrap();
+      setShowMessageModal(false);
+    } catch (err) {
+      console.error("Message failed:", err);
     }
   };
 
   return (
     <div className="bg-gray-200 min-h-screen py-6">
       <div className="max-w-4xl mx-auto px-4 space-y-6">
-
+        {/* PROFILE HEADER */}
         <ProfileHeader
-          data={userData}
-          onEdit={() => setEditType("header")}
+          data={profile}
+          connections={connections}
+          sentRequests={sentRequests}
+          pendingRequests={pendingRequests}
+          currentUserId={loggedInUser?._id}
+          isOwnProfile={isOwnProfile}
+          onConnect={handleConnect}
+          onMessage={() => setShowMessageModal(true)}
+          onLogout={handleLogout}
+          onEditHeader={isOwnProfile ? () => setEditType("header") : undefined}
+          onEditPictures={
+            isOwnProfile ? () => setEditType("pictures") : undefined
+          }
         />
 
+        {/* ABOUT */}
         <AboutSection
-          data={profileData.bio}
-          onEdit={() => setEditType("bio")}
+          data={profile?.profileId?.bio}
+          onEdit={isOwnProfile ? () => setEditType("bio") : undefined}
         />
 
+        {/* SKILLS */}
         <SkillsSection
-          data={profileData.skills}
-          onEdit={() => setEditType("skills")}
+          data={profile?.profileId?.skills}
+          onEdit={isOwnProfile ? () => setEditType("skills") : undefined}
         />
 
+        {/* EDUCATION */}
         <EducationSection
-          data={profileData.education}
-          onEdit={() => setEditType("education")}
+          data={profile?.profileId?.education}
+          onEdit={isOwnProfile ? () => setEditType("education") : undefined}
         />
 
+        {/* EXPERIENCE */}
         <ExperienceSection
-          data={profileData.experience}
-          onEdit={() => setEditType("experience")}
+          data={profile?.profileId?.pastWork}
+          onEdit={isOwnProfile ? () => setEditType("experience") : undefined}
         />
 
-        <ActivitySection />
+        {/* ACTIVITY / POSTS */}
+        <ActivitySection posts={posts} userId={userId} />
       </div>
 
-      {editType && (
+      {/* EDIT PROFILE MODAL */}
+      {editType && isOwnProfile && (
         <EditProfileModal
           type={editType}
-          userData={userData}
-          profileData={profileData}
+          userData={profile}
+          profileData={profile?.profileId}
           onSave={handleSave}
           onClose={() => setEditType(null)}
+        />
+      )}
+
+      {showMessageModal && (
+        <MessageModal
+          receiver={profile}
+          onSend={handleSendMessage}
+          onClose={() => setShowMessageModal(false)}
         />
       )}
     </div>
