@@ -1,116 +1,186 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import InvitationCard from "../components/Network/InvitationCard";
 import ProfileCard from "../components/Dashboard/ProfileCard";
+import { getAllUserProfiles } from "../redux/slices/userSlice";
+import {
+  getConnectionsList,
+  getSentRequests,
+  getPendingRequests,
+} from "../redux/slices/connectionSlice";
+
+const TABS = [
+  { key: "discover", label: "Discover", fullLabel: "Discover People" },
+  { key: "received", label: "Incoming", fullLabel: "Incoming Requests" },
+  { key: "sent", label: "Sent", fullLabel: "Sent Requests" },
+  { key: "connections", label: "Connections", fullLabel: "Connections" },
+];
 
 const Network = () => {
   const [activeTab, setActiveTab] = useState("discover");
 
-  return (
-    <div className="bg-gray-200 min-h-screen py-8">
-      <div className="max-w-4xl mx-auto px-4 space-y-6">
-        {/* Page Title */}
-        <h1 className="text-2xl font-semibold text-gray-800">My Network</h1>
+  const dispatch = useDispatch();
 
-        {/* Tabs */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-1">
+  const { profile, allUsers } = useSelector((state) => state.user);
+  const { connections, sentRequests, pendingRequests } = useSelector(
+    (state) => state.connections,
+  );
+
+  const incomingCount = pendingRequests?.length || 0;
+  const sentCount = sentRequests?.length || 0;
+
+  const activeIndex = TABS.findIndex((t) => t.key === activeTab);
+
+  useEffect(() => {
+    if (!profile?._id) return;
+    dispatch(getAllUserProfiles());
+    dispatch(getConnectionsList(profile._id));
+    dispatch(getSentRequests());
+    dispatch(getPendingRequests());
+  }, [dispatch, profile?._id]);
+
+  return (
+    <div className="bg-gray-200 min-h-screen py-4 sm:py-6 md:py-8">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 space-y-8 sm:space-y-10">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800">
+          My Network
+        </h1>
+
+        {/* Tab Bar */}
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-1 overflow-hidden">
           <div className="relative flex">
-            {/* Sliding Background */}
+            {/* Sliding indicator */}
             <div
-              className={`absolute top-0 left-0 h-full w-1/3 bg-blue-600 rounded-xl transition-all duration-300 ${
-                activeTab === "discover"
-                  ? "translate-x-0"
-                  : activeTab === "received"
-                    ? "translate-x-full"
-                    : "translate-x-[200%]"
-              }`}
+              className="absolute top-0 left-0 h-full bg-blue-600 rounded-xl transition-all duration-300 ease-in-out"
+              style={{
+                width: `${100 / TABS.length}%`,
+                transform: `translateX(${activeIndex * 100}%)`,
+              }}
             />
 
-            {/* Tab Buttons */}
-            <button
-              onClick={() => setActiveTab("discover")}
-              className={`relative flex-1 py-2 text-sm cursor-pointer font-medium rounded-xl transition ${
-                activeTab === "discover"
-                  ? "text-white"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Discover People
-            </button>
+            {TABS.map(({ key, label, fullLabel }) => {
+              const count =
+                key === "received"
+                  ? incomingCount
+                  : key === "sent"
+                    ? sentCount
+                    : 0;
+              const isActive = activeTab === key;
 
-            <button
-              onClick={() => setActiveTab("received")}
-              className={`relative flex-1 py-2 text-sm cursor-pointer font-medium rounded-xl transition ${
-                activeTab === "received"
-                  ? "text-white"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Incoming Requests
-            </button>
+              return (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key)}
+                  className={`relative flex-1 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-xl transition-colors duration-200 ${
+                    isActive
+                      ? "text-white"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <span className="flex items-center justify-center gap-1 sm:gap-2 px-1">
+                    {/* Short label on mobile, full label on sm+ */}
+                    <span className="block sm:hidden leading-tight text-center">
+                      {label}
+                    </span>
+                    <span className="hidden cursor-pointer sm:block">{fullLabel}</span>
 
-            <button
-              onClick={() => setActiveTab("sent")}
-              className={`relative flex-1 py-2 text-sm cursor-pointer font-medium rounded-xl transition ${
-                activeTab === "sent"
-                  ? "text-white"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Sent Requests
-            </button>
+                    {count > 0 && (
+                      <span
+                        className={`flex-shrink-0 min-w-[18px] h-[18px] sm:min-w-[20px] sm:h-[20px] flex items-center justify-center px-1 text-xs font-semibold rounded-full ${
+                          isActive
+                            ? "bg-white text-blue-600"
+                            : "bg-blue-600 text-white"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="space-y-4">
+        {/* Tab Content */}
+        <div className="space-y-3 sm:space-y-4">
           {activeTab === "discover" && (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-              <ProfileCard
-                name="Sarah Johnson"
-                role="UI/UX Designer"
-                company="@Google"
-                location="Bangalore, India"
-                image="https://i.pravatar.cc/150?img=12"
-                showConnect={true}
-              />
-              <ProfileCard
-                name="Sarah Johnson"
-                role="UI/UX Designer"
-                company="@Google"
-                location="Bangalore, India"
-                image="https://i.pravatar.cc/150?img=12"
-                showConnect={true}
-              />
-              <ProfileCard
-                name="Sarah Johnson"
-                role="UI/UX Designer"
-                company="@Google"
-                location="Bangalore, India"
-                image="https://i.pravatar.cc/150?img=12"
-                showConnect={true}
-              />
-              <ProfileCard
-                name="Sarah Johnson"
-                role="UI/UX Designer"
-                company="@Google"
-                location="Bangalore, India"
-                image="https://i.pravatar.cc/150?img=12"
-                showConnect={true}
-              />
+            <>
+              {allUsers?.filter((u) => profile?._id && u._id !== profile._id)
+                ?.length === 0 ? (
+                <div className="text-center py-12 text-gray-400 text-sm">
+                  No people to discover right now.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-5">
+                  {allUsers
+                    ?.filter((u) => profile?._id && u._id !== profile._id)
+                    ?.map((u) => (
+                      <ProfileCard
+                        key={u._id}
+                        profile={u}
+                        showConnect={true}
+                        currentUserId={profile?._id}
+                        sentRequests={sentRequests}
+                        connections={connections}
+                        pendingRequests={pendingRequests}
+                      />
+                    ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === "connections" && (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-5">
+              {connections?.length > 0 ? (
+                connections.map((conn) => (
+                  <ProfileCard
+                    key={conn.friend._id}
+                    profile={conn.friend}
+                    showConnect={false}
+                    currentUserId={profile?._id}
+                    showRemove={true}
+                    connectionId={conn.connectionId}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12 text-gray-400 text-sm">
+                  No connections yet.
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === "received" && (
-            <div className="space-y-4">
-              <InvitationCard type="received" />
-              <InvitationCard type="received" />
+            <div className="space-y-3 sm:space-y-4">
+              {pendingRequests?.length > 0 ? (
+                pendingRequests.map((req) => (
+                  <InvitationCard
+                    key={req._id}
+                    type="received"
+                    pendingRequest={req}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-12 text-gray-400 text-sm">
+                  No incoming requests.
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === "sent" && (
-            <div className="space-y-4">
-              <InvitationCard type="sent" />
-              <InvitationCard type="sent" />
+            <div className="space-y-3 sm:space-y-4">
+              {sentRequests?.length > 0 ? (
+                sentRequests.map((req) => (
+                  <InvitationCard key={req._id} type="sent" sentRequest={req} />
+                ))
+              ) : (
+                <div className="text-center py-12 text-gray-400 text-sm">
+                  No sent requests.
+                </div>
+              )}
             </div>
           )}
         </div>
