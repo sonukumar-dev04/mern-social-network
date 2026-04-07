@@ -1,4 +1,3 @@
-import { BASE_URL } from "./utils/postUtils";
 
 const PostContent = ({ post, compact }) => (
   <div
@@ -14,7 +13,7 @@ const PostContent = ({ post, compact }) => (
         className={`mt-4 overflow-hidden rounded-xl ${compact ? "h-40" : "max-h-[520px]"}`}
       >
         <img
-          src={`${BASE_URL}/uploads/${post.media}`}
+          src={post.media}
           alt="post"
           className="w-full h-full object-cover"
         />

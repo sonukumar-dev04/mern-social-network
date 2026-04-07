@@ -2,10 +2,10 @@ import { useState } from "react";
 import { FiSend, FiTrash2 } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { addComment, deleteComment } from "../../../redux/slices/commentSlice";
-import { getAvatar, BASE_URL } from "./utils/postUtils";
 
 const CommentsSection = ({ post, comments, loading }) => {
   const dispatch = useDispatch();
+  const authUser = useSelector((state) => state.auth.user); // ← get auth user
   const authUserId = useSelector((state) => state.user.profile?._id);
   const [commentText, setCommentText] = useState("");
 
@@ -21,7 +21,7 @@ const CommentsSection = ({ post, comments, loading }) => {
       {/* Add Comment */}
       <div className="flex items-center gap-3">
         <img
-          src={`${BASE_URL}/uploads/default_profile.jpg`}
+          src={authUser?.profilePicture || "/default_profile.jpg"} // ← updated
           alt="user"
           className="w-9 h-9 rounded-full object-cover"
         />
@@ -51,7 +51,7 @@ const CommentsSection = ({ post, comments, loading }) => {
         comments.map((c) => (
           <div key={c._id} className="flex gap-3 group">
             <img
-              src={getAvatar(c.userId?.profilePicture)}
+              src={c.userId?.profilePicture || "/default_profile.jpg"}
               alt="user"
               className="w-9 h-9 rounded-full object-cover"
             />

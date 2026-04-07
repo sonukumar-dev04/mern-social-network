@@ -3,7 +3,6 @@ import { FiMoreHorizontal, FiTrash2 } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { deletePost } from "../../../redux/slices/postSlice";
-import { getAvatar } from "./utils/postUtils";
 
 const PostHeader = ({ post, compact, isPostOwner }) => {
   const dispatch = useDispatch();
@@ -18,7 +17,7 @@ const PostHeader = ({ post, compact, isPostOwner }) => {
         className="flex items-center gap-3 cursor-pointer"
       >
         <img
-          src={getAvatar(post.userId?.profilePicture)}
+          src={post.userId?.profilePicture}
           alt="user"
           className="w-11 h-11 rounded-full object-cover border border-gray-200"
         />
