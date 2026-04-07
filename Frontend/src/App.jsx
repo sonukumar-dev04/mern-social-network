@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { fetchSelf } from "./redux/slices/authSlice"; 
+import { fetchSelf } from "./redux/slices/authSlice";
 
 import Index from "./pages/Index";
 import Signin from "./pages/Signin";

@@ -35,6 +35,8 @@ const InputField = ({ icon: Icon, error, rightElement, ...props }) => (
   </div>
 );
 
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
+
 const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -56,21 +58,73 @@ const Signup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const trimmedData = {
+      name: formData.name.trim(),
+      email: formData.email.trim().toLowerCase(),
+      username: formData.username.trim().toLowerCase(),
+      password: formData.password,
+    };
+
+    // Empty fields
     if (
-      !formData.name ||
-      !formData.email ||
-      !formData.username ||
-      !formData.password
+      !trimmedData.name ||
+      !trimmedData.email ||
+      !trimmedData.username ||
+      !trimmedData.password
     ) {
       setLocalError("All fields are required!");
       return;
     }
-    if (formData.password.length < 6) {
-      setLocalError("Password must be at least 6 characters long!");
+
+    // Name length
+    if (trimmedData.name.length < 2) {
+      setLocalError("Name must be at least 2 characters.");
       return;
     }
+    if (trimmedData.name.length > 50) {
+      setLocalError("Name cannot exceed 50 characters.");
+      return;
+    }
+
+    // Email validation
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!EMAIL_REGEX.test(trimmedData.email)) {
+      setLocalError("Please enter a valid email address.");
+      return;
+    }
+
+    // Username — only letters, numbers, underscores, no spaces
+    const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
+    if (!USERNAME_REGEX.test(trimmedData.username)) {
+      setLocalError(
+        "Username can only contain letters, numbers, and underscores.",
+      );
+      return;
+    }
+    if (trimmedData.username.length < 3) {
+      setLocalError("Username must be at least 3 characters.");
+      return;
+    }
+    if (trimmedData.username.length > 30) {
+      setLocalError("Username cannot exceed 30 characters.");
+      return;
+    }
+
+    // Password validation
+    if (!PASSWORD_REGEX.test(formData.password)) {
+      setLocalError(
+        "Password must be at least 6 characters, include 1 uppercase letter and 1 number.",
+      );
+      return;
+    }
+    if (formData.password.length > 128) {
+      setLocalError("Password cannot exceed 128 characters.");
+      return;
+    }
+
     setLocalError(null);
-    dispatch(registerUser(formData)).then((res) => {
+    dispatch(registerUser(trimmedData)).then((res) => {
       if (res.meta.requestStatus === "fulfilled") navigate("/signin");
     });
   };
@@ -78,7 +132,7 @@ const Signup = () => {
   const displayError = localError || error;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 flex items-center justify-center px-4 py-10 pt-20">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-6 sm:p-8">
         {/* Heading */}
         <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mb-1">
@@ -129,7 +183,7 @@ const Signup = () => {
             icon={Lock}
             type={showPassword ? "text" : "password"}
             name="password"
-            placeholder="Password (6+ characters)"
+            placeholder="Password"
             value={formData.password}
             onChange={handleChange}
             error={displayError && !formData.password}
@@ -149,6 +203,11 @@ const Signup = () => {
               </button>
             }
           />
+
+          {/* Password hint */}
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Min. 6 characters, 1 uppercase letter, 1 number.
+          </p>
 
           <p className="text-xs text-slate-400 leading-relaxed pt-1">
             By clicking Join, you agree to our{" "}
