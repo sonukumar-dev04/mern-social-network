@@ -56,8 +56,6 @@ const Feed = () => {
           )}
         </div>
 
-        {/* ── TABLET (md) : 2 columns — left sidebar + feed ──────── */}
-        {/* ── DESKTOP (lg): 3 columns — left + feed + right ──────── */}
         <div className="hidden md:grid md:grid-cols-12 gap-6">
           {/* LEFT SIDEBAR — tablet & desktop */}
           <div className="md:col-span-4 lg:col-span-3 space-y-4">
@@ -68,7 +66,6 @@ const Feed = () => {
               loading={profileLoading}
               error={profileError}
             />
-            {/* <ProfileStatsCard /> */}
           </div>
 
           {/* CENTER FEED */}
