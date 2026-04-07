@@ -1,11 +1,9 @@
-import { BASE_URL } from "./utils/storyUtils";
-
 const StoryContent = ({ story }) => (
   <>
     {story.type === "image" ? (
       <>
         <img
-          src={`${BASE_URL}/uploads/${story.image}`}
+          src={story.image}
           alt="story"
           className="w-full h-full object-cover pointer-events-none"
         />

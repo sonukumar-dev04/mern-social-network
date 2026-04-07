@@ -8,10 +8,9 @@ import SearchDropdown from "./Navbar/Searchdropdown";
 import { NavItem, MobileNavItem } from "./Navbar/Navitems";
 import useSearch from "./Navbar/hooks/Usesearch";
 
-const AVATAR_BASE = "http://localhost:4000/uploads";
-const DEFAULT_AVATAR = `${AVATAR_BASE}/default_profile.jpg`;
+const DEFAULT_AVATAR = "/default_profile.jpg"; // ← updated
 
-const avatarSrc = (pic) => (pic ? `${AVATAR_BASE}/${pic}` : DEFAULT_AVATAR);
+const avatarSrc = (pic) => (pic ? pic : DEFAULT_AVATAR); // ← updated
 
 const Navbar2 = () => {
   const profile = useSelector((state) => state.auth.user);
@@ -169,7 +168,6 @@ const Navbar2 = () => {
   );
 };
 
-/* Small helper — desktop profile link */
 const ProfileLink = ({ id, pic }) => (
   <NavLink
     to={`/profile/${id}`}

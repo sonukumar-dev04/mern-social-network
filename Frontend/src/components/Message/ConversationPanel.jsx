@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-import EmptyState from "./ChatPanel/EmptyState";
 
 const ConversationPanel = ({
   conversations,
@@ -82,8 +81,8 @@ const ConversationPanel = ({
                   <img
                     src={
                       otherUser?.profilePicture
-                        ? `http://localhost:4000/uploads/${otherUser.profilePicture}`
-                        : "http://localhost:4000/uploads/default_profile.jpg"
+                        ? otherUser.profilePicture // ← updated
+                        : "/default_profile.jpg" // ← updated
                     }
                     alt=""
                     className="w-10 h-10 rounded-full object-cover"

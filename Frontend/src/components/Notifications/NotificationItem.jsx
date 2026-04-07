@@ -20,8 +20,8 @@ const NotificationItem = ({ notification }) => {
       <img
         src={
           notification?.sender?.profilePicture
-            ? `http://localhost:4000/uploads/${notification.sender.profilePicture}`
-            : "http://localhost:4000/uploads/default_profile.jpg"
+            ? notification.sender.profilePicture // ← updated
+            : "/default_profile.jpg" // ← updated
         }
         alt="user"
         className="w-14 h-14 rounded-full object-cover"

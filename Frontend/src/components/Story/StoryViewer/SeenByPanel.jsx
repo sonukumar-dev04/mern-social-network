@@ -1,4 +1,4 @@
-import { avatar, timeAgo } from "./utils/storyUtils";
+import {  timeAgo } from "./utils/storyUtils";
 
 const SeenByPanel = ({ visible, seenBy }) => (
   <div
@@ -30,7 +30,7 @@ const SeenByPanel = ({ visible, seenBy }) => (
             >
               <div className="flex items-center gap-2.5">
                 <img
-                  src={avatar(entry.user?.profilePicture)}
+                  src={entry.user?.profilePicture}
                   alt={entry.user?.name}
                   className="w-8 h-8 rounded-full object-cover ring-1 ring-white/20"
                 />

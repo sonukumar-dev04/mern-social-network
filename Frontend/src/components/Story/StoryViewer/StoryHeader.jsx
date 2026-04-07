@@ -1,12 +1,12 @@
 import { X, Trash2, Eye } from "lucide-react";
-import { avatar, timeAgo } from "./utils/storyUtils";
+import {  timeAgo } from "./utils/storyUtils";
 
 const StoryHeader = ({ story, isOwner, onEyeClick, onDelete, onClose }) => (
   <div className="absolute top-9 left-4 right-4 z-20 flex items-center justify-between">
     {/* Left: user info */}
     <div className="flex items-center gap-2.5 pointer-events-none">
       <img
-        src={avatar(story.user?.profilePicture)}
+        src={story.user?.profilePicture}
         alt="user"
         className="w-8 h-8 rounded-full object-cover ring-2 ring-white/60"
       />

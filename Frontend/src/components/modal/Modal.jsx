@@ -45,8 +45,8 @@ export default function PostModal({ isOpen, setOpen, profile }) {
             <img
               src={
                 profile?.profilePicture
-                  ? `http://localhost:4000/uploads/${profile.profilePicture}`
-                  : "http://localhost:4000/uploads/default_profile.jpg"
+                  ? profile.profilePicture // ← updated
+                  : "/default_profile.jpg" // ← updated
               }
               alt="profile"
               className="w-11 h-11 rounded-full object-cover ring-1 ring-gray-200"

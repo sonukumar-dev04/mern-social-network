@@ -5,7 +5,7 @@ import { fetchStories } from "../../redux/slices/storySlice";
 import CreateStoryModal from "./CreateStoryModal";
 import StoryViewer from "./StoryViewer/StoryViewer";
 import { isStorySeen } from "./StoryViewer/utils/storyUtils";
-// ── Skeleton ──────────────────────────────────────────────────────────────────
+
 const SkeletonAvatar = () => (
   <div className="flex flex-col items-center gap-2 shrink-0 animate-pulse">
     <div className="w-[57px] h-[57px] rounded-full bg-slate-100" />
@@ -13,7 +13,6 @@ const SkeletonAvatar = () => (
   </div>
 );
 
-// ── Story avatar ──────────────────────────────────────────────────────────────
 const StoryAvatar = ({ group, onClick, seen }) => {
   const firstStory = group.stories[0];
 
@@ -33,7 +32,7 @@ const StoryAvatar = ({ group, onClick, seen }) => {
           <div className="w-[52px] h-[52px] rounded-full overflow-hidden">
             {firstStory.type === "image" ? (
               <img
-                src={`http://localhost:4000/uploads/${firstStory.image}`}
+                src={firstStory.image} // ← updated
                 alt={group.user.name}
                 className="w-full h-full object-cover"
               />
@@ -62,7 +61,6 @@ const StoryAvatar = ({ group, onClick, seen }) => {
   );
 };
 
-// ── Main StoryBar ─────────────────────────────────────────────────────────────
 const StoryBar = () => {
   const dispatch = useDispatch();
   const profile = useSelector((state) => state.auth.user);
@@ -112,10 +110,8 @@ const StoryBar = () => {
 
   return (
     <>
-      {/* ── Card ── */}
       <div className="bg-white border border-slate-100 rounded-2xl px-5 py-4 shadow-sm">
         <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-          {/* Add story button */}
           <button
             onClick={() => setShowCreate(true)}
             className="flex flex-col items-center gap-1.5 shrink-0 group outline-none"
@@ -125,14 +121,13 @@ const StoryBar = () => {
                 <img
                   src={
                     profile?.profilePicture
-                      ? `http://localhost:4000/uploads/${profile.profilePicture}`
-                      : "http://localhost:4000/uploads/default_profile.jpg"
+                      ? profile.profilePicture // ← updated
+                      : "/default_profile.jpg" // ← updated
                   }
                   alt="your story"
                   className="w-full h-full object-cover"
                 />
               </div>
-              {/* Plus badge */}
               <div className="absolute -bottom-0.5 -right-0.5 w-[20px] h-[20px] bg-blue-600 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
                 <Plus size={11} strokeWidth={3} className="text-white" />
               </div>
@@ -142,16 +137,13 @@ const StoryBar = () => {
             </span>
           </button>
 
-          {/* Divider */}
           {(loading || stories.length > 0) && (
             <div className="w-px h-10 bg-slate-100 shrink-0" />
           )}
 
-          {/* Skeletons */}
           {loading &&
             Array.from({ length: 4 }).map((_, i) => <SkeletonAvatar key={i} />)}
 
-          {/* Stories */}
           {!loading &&
             stories.map((group, index) => (
               <StoryAvatar

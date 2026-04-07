@@ -1,7 +1,6 @@
 // Constants
 export const STORY_DURATION = 5000;
 export const HOLD_DELAY = 150;
-export const BASE_URL = "http://localhost:4000";
 
 // Helpers
 export const timeAgo = (dateStr) => {
@@ -13,11 +12,6 @@ export const timeAgo = (dateStr) => {
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
 };
-
-export const avatar = (pic) =>
-  pic
-    ? `${BASE_URL}/uploads/${pic}`
-    : `${BASE_URL}/uploads/default_profile.jpg`;
 
 // LocalStorage seen tracking
 

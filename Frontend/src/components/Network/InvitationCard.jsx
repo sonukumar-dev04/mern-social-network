@@ -31,8 +31,8 @@ const InvitationCard = ({
         <img
           src={
             user?.profilePicture
-              ? `http://localhost:4000/uploads/${user.profilePicture}`
-              : "http://localhost:4000/uploads/default_profile.jpg"
+              ? user.profilePicture // ← updated
+              : "/default_profile.jpg" // ← updated
           }
           alt="profile"
           className="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-200 flex-shrink-0"
@@ -59,7 +59,7 @@ const InvitationCard = ({
       {/* Right Section */}
       <div className="flex-shrink-0">
         {type === "received" ? (
-         <div className="flex-shrink-0 flex flex-row gap-2">
+          <div className="flex-shrink-0 flex flex-row gap-2">
             <button
               onClick={() => handleRespond(true)}
               className="w-full px-3 sm:px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs sm:text-sm font-medium cursor-pointer hover:bg-blue-700 transition"

@@ -75,9 +75,7 @@ const ProfileCard = ({
       <div className="relative h-16 sm:h-24 md:h-28 w-full">
         <img
           src={
-            profile?.coverPicture
-              ? `http://localhost:4000/uploads/${profile.coverPicture}`
-              : "http://localhost:4000/uploads/default_banner.jpg"
+            profile?.coverPicture ? profile.coverPicture : "/default_banner.jpg"
           }
           alt="cover"
           className="w-full h-full object-cover"
@@ -93,8 +91,8 @@ const ProfileCard = ({
             <img
               src={
                 profile?.profilePicture
-                  ? `http://localhost:4000/uploads/${profile.profilePicture}`
-                  : "http://localhost:4000/uploads/default_profile.jpg"
+                  ? profile.profilePicture
+                  : "/default_profile.jpg"
               }
               alt="profile"
               className="w-14 h-14 sm:h-20 sm:w-20 md:w-24 md:h-24 rounded-full mx-auto border-4 border-white object-cover shadow-sm"

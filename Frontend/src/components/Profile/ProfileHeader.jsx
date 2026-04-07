@@ -17,11 +17,6 @@ const ProfileHeader = ({
 }) => {
   const isOwnProfile = String(data?._id) === String(currentUserId);
 
-  /* ===============================
-     CONNECTION STATUS LOGIC
-     (Same as ProfileCard)
-  =============================== */
-
   const isConnected = connections?.some(
     (conn) => String(conn.friend?._id) === String(currentUserId),
   );
@@ -33,10 +28,6 @@ const ProfileHeader = ({
   const hasIncomingRequest = pendingRequests?.some(
     (req) => String(req.userId?._id) === String(data?._id),
   );
-
-  /* ===============================
-     CONNECTION BUTTON
-  =============================== */
 
   const renderConnectionButton = () => {
     if (isConnected) {
@@ -72,8 +63,8 @@ const ProfileHeader = ({
         <img
           src={
             data?.coverPicture
-              ? `http://localhost:4000/uploads/${data.coverPicture}`
-              : "http://localhost:4000/uploads/default_banner.jpg"
+              ? data.coverPicture // ← updated
+              : "/default_banner.jpg" // ← updated
           }
           alt="cover"
           className="w-full h-56 object-cover"
@@ -94,8 +85,8 @@ const ProfileHeader = ({
             <img
               src={
                 data?.profilePicture
-                  ? `http://localhost:4000/uploads/${data.profilePicture}`
-                  : "http://localhost:4000/uploads/default_profile.jpg"
+                  ? data.profilePicture // ← updated
+                  : "/default_profile.jpg" // ← updated
               }
               alt="profile"
               className="w-28 h-28 rounded-full border-4 border-white object-cover shadow-md"

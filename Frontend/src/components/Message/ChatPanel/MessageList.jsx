@@ -61,7 +61,7 @@ const MessageList = ({ grouped, user, otherUser, isOtherTyping }) => {
                   className={`rounded-2xl overflow-hidden ${isMe ? "rounded-br-md" : "rounded-bl-md"}`}
                 >
                   <img
-                    src={`http://localhost:4000/uploads/${msg.image}`}
+                    src={msg.image} // ← updated
                     alt="shared"
                     className="max-h-56 object-cover block"
                   />

@@ -7,12 +7,12 @@ const CreatePostCard = ({ onOpen, profile }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition duration-300">
       {/* Top Section */}
-      <div className="flex items-center  gap-3">
+      <div className="flex items-center gap-3">
         <img
           src={
             profile?.profilePicture
-              ? `http://localhost:4000/uploads/${profile.profilePicture}`
-              : "http://localhost:4000/uploads/default_profile.jpg"
+              ? profile.profilePicture 
+              : "/default_profile.jpg" 
           }
           alt="profile"
           onClick={() => navigate(`/profile/${profile._id}`)}

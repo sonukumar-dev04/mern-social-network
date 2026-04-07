@@ -19,7 +19,7 @@ const Avatar = ({ src, name, size = "md" }) => {
     >
       {src ? (
         <img
-          src={`http://localhost:4000/uploads/${src}`}
+          src={src} // ← updated
           alt={name}
           className="w-full h-full object-cover"
           onError={(e) => {

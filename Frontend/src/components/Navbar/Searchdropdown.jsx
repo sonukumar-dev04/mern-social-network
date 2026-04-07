@@ -20,8 +20,8 @@ const SearchDropdown = ({ users, onSelect }) => {
             <img
               src={
                 user.profilePicture
-                  ? `http://localhost:4000/uploads/${user.profilePicture}`
-                  : "http://localhost:4000/uploads/default_profile.jpg"
+                  ? user.profilePicture // ← updated
+                  : "/default_profile.jpg" // ← updated
               }
               alt="user"
               className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200"
