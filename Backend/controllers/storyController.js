@@ -1,6 +1,5 @@
 import Story from "../models/story.js";
 
-// POST /api/stories/create
 export const createStory = async (req, res) => {
   try {
     const { type, text, bgColor } = req.body;
@@ -17,7 +16,7 @@ export const createStory = async (req, res) => {
       const story = new Story({
         user: req.user._id,
         type: "image",
-        image: req.file.filename,
+        image: req.file.path, // ← updated
       });
       await story.save();
       const populated = await story.populate("user", "name profilePicture");
@@ -52,7 +51,6 @@ export const createStory = async (req, res) => {
   }
 };
 
-// GET /api/stories
 export const getStories = async (req, res) => {
   try {
     const stories = await Story.find()
@@ -60,7 +58,6 @@ export const getStories = async (req, res) => {
       .populate("seenBy.user", "name profilePicture")
       .sort({ createdAt: -1 });
 
-    // Group by userId
     const grouped = {};
     stories.forEach((story) => {
       const userId = story.user._id.toString();
@@ -77,7 +74,6 @@ export const getStories = async (req, res) => {
   }
 };
 
-// PUT /api/stories/:id/seen
 export const markSeen = async (req, res) => {
   try {
     const { id } = req.params;
@@ -86,11 +82,9 @@ export const markSeen = async (req, res) => {
     const story = await Story.findById(id);
     if (!story) return res.status(404).json({ message: "Story not found" });
 
-    // Don't count the owner viewing their own story
     if (story.user.toString() === viewerId.toString())
       return res.json({ message: "Owner view not tracked" });
 
-    // Only add if not already seen by this user
     const alreadySeen = story.seenBy.some(
       (s) => s.user.toString() === viewerId.toString(),
     );
@@ -100,7 +94,6 @@ export const markSeen = async (req, res) => {
       await story.save();
     }
 
-    // Return populated seenBy for immediate UI update
     const updated = await Story.findById(id).populate(
       "seenBy.user",
       "name profilePicture",
@@ -113,7 +106,6 @@ export const markSeen = async (req, res) => {
   }
 };
 
-// DELETE /api/stories/:id
 export const deleteStory = async (req, res) => {
   try {
     const { id } = req.params;

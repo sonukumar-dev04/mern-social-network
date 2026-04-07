@@ -26,11 +26,11 @@ const UserSchema = new mongoose.Schema(
     },
     profilePicture: {
       type: String,
-      default: "default_profile.jpg",
+      default: process.env.DEFAULT_PROFILE_PICTURE,
     },
     coverPicture: {
       type: String,
-      default: "default_banner.jpg",
+      default: process.env.DEFAULT_COVER_PICTURE,
     },
     profileId: {
       type: mongoose.Schema.Types.ObjectId,

@@ -17,7 +17,7 @@ export const createPost = async (req, res) => {
     const post = new Post({
       userId: user._id,
       body: req.body.body || "",
-      media: req.file ? req.file.filename : "",
+      media: req.file ? req.file.path : "", // ← updated
       filetype: req.file ? req.file.mimetype.split("/")[1] : "",
     });
 
@@ -134,35 +134,29 @@ export const deletePost = async (req, res) => {
 
 export const toggleLikePost = async (req, res) => {
   try {
-    const userId = req.user._id; // logged-in user
-    const { postId } = req.params; // post to like/unlike
+    const userId = req.user._id;
+    const { postId } = req.params;
 
-    // 1. Check if user exists
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // 2. Find the post and populate owner
     const post = await Post.findById(postId).populate("userId");
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    // 3. Check if user already liked the post
     const index = post.likes.findIndex((id) => id.equals(userId));
 
     let message;
     if (index !== -1) {
-      // User already liked → remove like
       post.likes.splice(index, 1);
       message = "Post unliked successfully";
     } else {
-      // User has not liked → add like
       post.likes.push(userId);
       message = "Post liked successfully";
 
-      // 4. Create notification for post owner (only when liking, not unliking)
       if (post.userId._id.toString() !== userId.toString()) {
         const content = `${user.name} liked your post`;
         const notification = new Notification({
@@ -176,7 +170,6 @@ export const toggleLikePost = async (req, res) => {
       }
     }
 
-    // 5. Save post
     await post.save();
 
     return res.status(200).json({

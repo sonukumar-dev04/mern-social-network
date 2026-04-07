@@ -242,7 +242,7 @@ export const getConnectionsList = async (req, res) => {
     })
       .populate({
         path: "userId",
-        select: "name username email profilePicture profileId",
+        select: "name username email profilePicture coverPicture profileId",
         populate: {
           path: "profileId",
           select:
@@ -251,7 +251,7 @@ export const getConnectionsList = async (req, res) => {
       })
       .populate({
         path: "connectionId",
-        select: "name username email profilePicture profileId",
+        select: "name username email profilePicture coverPicture profileId",
         populate: {
           path: "profileId",
           select:
@@ -278,6 +278,7 @@ export const getConnectionsList = async (req, res) => {
           username: friend.username,
           email: friend.email,
           profilePicture: friend.profilePicture,
+          coverPicture: friend.coverPicture,
           profile: friend.profileId,
         },
         connectedAt: conn.updatedAt,

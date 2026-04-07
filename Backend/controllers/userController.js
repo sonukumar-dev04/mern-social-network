@@ -59,7 +59,6 @@ export const login = async (req, res) => {
     let token = jwt.sign({ userId: user._id }, process.env.JWT_PRIVATE_KEY);
     res.cookie("token", token, cookieOptions);
 
-    // ✅ Return both token and user
     return res.json({
       token,
       user: {
@@ -89,14 +88,12 @@ export const uploadPictures = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update profile picture if uploaded
     if (req.files.profile_picture) {
-      user.profilePicture = req.files.profile_picture[0].filename;
+      user.profilePicture = req.files.profile_picture[0].path; // ← updated
     }
 
-    // Update cover picture if uploaded
     if (req.files.cover_picture) {
-      user.coverPicture = req.files.cover_picture[0].filename;
+      user.coverPicture = req.files.cover_picture[0].path; // ← updated
     }
 
     await user.save();
@@ -230,7 +227,6 @@ export const updateUserAndProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // --- Update User ---
     if (userData) {
       const { username, email } = userData;
       const existingUser = await User.findOne({
@@ -243,7 +239,6 @@ export const updateUserAndProfile = async (req, res) => {
       await user.save();
     }
 
-    // --- Update Profile ---
     if (profileData) {
       const profile = await Profile.findById(user.profileId);
       if (!profile) return res.status(404).json({ error: "Profile not found" });
