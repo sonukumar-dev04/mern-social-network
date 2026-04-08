@@ -20,8 +20,8 @@ const NotificationItem = ({ notification }) => {
       <img
         src={
           notification?.sender?.profilePicture
-            ? notification.sender.profilePicture // ← updated
-            : "/default_profile.jpg" // ← updated
+            ? notification.sender.profilePicture
+            : import.meta.env.VITE_DEFAULT_PROFILE_PICTURE
         }
         alt="user"
         className="w-14 h-14 rounded-full object-cover"

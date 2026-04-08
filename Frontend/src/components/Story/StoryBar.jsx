@@ -122,7 +122,7 @@ const StoryBar = () => {
                   src={
                     profile?.profilePicture
                       ? profile.profilePicture // ← updated
-                      : "/default_profile.jpg" // ← updated
+                      : import.meta.env.VITE_DEFAULT_PROFILE_PICTURE
                   }
                   alt="your story"
                   className="w-full h-full object-cover"

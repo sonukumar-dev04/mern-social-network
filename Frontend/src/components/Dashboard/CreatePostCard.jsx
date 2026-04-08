@@ -11,8 +11,8 @@ const CreatePostCard = ({ onOpen, profile }) => {
         <img
           src={
             profile?.profilePicture
-              ? profile.profilePicture 
-              : "/default_profile.jpg" 
+              ? profile.profilePicture
+              : import.meta.env.VITE_DEFAULT_PROFILE_PICTURE
           }
           alt="profile"
           onClick={() => navigate(`/profile/${profile._id}`)}

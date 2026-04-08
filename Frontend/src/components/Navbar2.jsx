@@ -8,9 +8,8 @@ import SearchDropdown from "./Navbar/Searchdropdown";
 import { NavItem, MobileNavItem } from "./Navbar/Navitems";
 import useSearch from "./Navbar/hooks/Usesearch";
 
-const DEFAULT_AVATAR = "/default_profile.jpg"; // ← updated
-
-const avatarSrc = (pic) => (pic ? pic : DEFAULT_AVATAR); // ← updated
+const avatarSrc = (pic) =>
+  pic ? pic : import.meta.env.VITE_DEFAULT_PROFILE_PICTURE;
 
 const Navbar2 = () => {
   const profile = useSelector((state) => state.auth.user);
