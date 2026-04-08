@@ -7,7 +7,7 @@ export const addConversation = async (req, res) => {
     const { receiverId, message } = req.body;
 
     // Image from multer
-    const image = req.file ? req.file.filename : null;
+    const image = req.file ? req.file.path : null;
 
     if (!receiverId) {
       return res.status(400).json({
