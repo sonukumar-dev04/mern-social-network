@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 
 import { PublicRoute, PrivateRoute } from "./routes/ProtectedRoute";
 
+
 const App = () => {
   const dispatch = useDispatch();
 
