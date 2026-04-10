@@ -46,7 +46,7 @@ export const fetchSelf = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await clientServer.get("/api/users/self", {
-        withCredentials: true, 
+        withCredentials: true,
       });
       return data.user;
     } catch (err) {
@@ -105,8 +105,16 @@ const authSlice = createSlice({
       })
 
       // Fetch self
+      .addCase(fetchSelf.pending, (state) => {
+        state.loading = true; // ← this is what was missing
+      })
       .addCase(fetchSelf.fulfilled, (state, action) => {
+        state.loading = false;
         state.user = action.payload;
+      })
+      .addCase(fetchSelf.rejected, (state) => {
+        state.loading = false;
+        state.user = null; // not logged in
       });
   },
 });

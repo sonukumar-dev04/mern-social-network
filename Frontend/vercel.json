@@ -1,13 +1,12 @@
 {
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://pronet-api-l4m5.onrender.com/api/$1",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      "source": "/api/:path*",
+      "destination": "https://pronet-api-l4m5.onrender.com/api/:path*"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
