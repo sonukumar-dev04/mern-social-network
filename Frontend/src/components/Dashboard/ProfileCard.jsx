@@ -30,8 +30,14 @@ const ProfileCard = ({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-6 text-center shadow-sm text-sm text-gray-500">
-        Loading profile...
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm animate-pulse">
+        <div className="h-16 sm:h-24 md:h-28 w-full bg-gray-200" />
+        <div className="px-5 pb-5 text-center -mt-10">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto bg-gray-300 border-4 border-white" />
+          <div className="h-4 w-32 bg-gray-200 rounded mx-auto mt-4" />
+          <div className="h-3 w-24 bg-gray-200 rounded mx-auto mt-3" />
+          <div className="h-3 w-20 bg-gray-200 rounded mx-auto mt-2" />
+        </div>
       </div>
     );
   }

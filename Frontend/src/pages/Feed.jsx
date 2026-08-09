@@ -9,6 +9,31 @@ import PromoCard from "../components/Dashboard/PromoCard";
 import PostModal from "../components/modal/Modal";
 import StoryBar from "../components/Story/StoryBar";
 
+const PostSkeleton = () => (
+  <div className="space-y-4">
+    {Array.from({ length: 3 }).map((_, i) => (
+      <div key={i} className="bg-white rounded-xl p-4 shadow-sm animate-pulse">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-11 h-11 rounded-full bg-gray-200" />
+          <div className="space-y-2">
+            <div className="h-3 w-32 bg-gray-200 rounded" />
+            <div className="h-2.5 w-20 bg-gray-200 rounded" />
+          </div>
+        </div>
+        <div className="space-y-2 mb-4">
+          <div className="h-3 w-full bg-gray-200 rounded" />
+          <div className="h-3 w-4/5 bg-gray-200 rounded" />
+        </div>
+        <div className="h-48 w-full bg-gray-200 rounded-lg" />
+        <div className="flex gap-4 mt-4">
+          <div className="h-3 w-14 bg-gray-200 rounded" />
+          <div className="h-3 w-14 bg-gray-200 rounded" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const Feed = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
@@ -40,9 +65,7 @@ const Feed = () => {
           <CreatePostCard onOpen={() => setOpen(true)} profile={profile} />
 
           {postsLoading ? (
-            <div className="bg-white rounded-xl p-6 text-center text-gray-500">
-              Loading posts...
-            </div>
+            <PostSkeleton />
           ) : postsError ? (
             <div className="bg-white rounded-xl p-6 text-center text-red-500">
               {postsError}
@@ -74,9 +97,7 @@ const Feed = () => {
             <CreatePostCard onOpen={() => setOpen(true)} profile={profile} />
 
             {postsLoading ? (
-              <div className="bg-white rounded-xl p-6 text-center text-gray-500">
-                Loading posts...
-              </div>
+              <PostSkeleton />
             ) : postsError ? (
               <div className="bg-white rounded-xl p-6 text-center text-red-500">
                 {postsError}
