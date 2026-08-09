@@ -191,8 +191,15 @@ const userSlice = createSlice({
       })
 
       // getAllUserProfiles
+      .addCase(getAllUserProfiles.pending, (state) => {
+        state.usersLoading = true;
+      })
       .addCase(getAllUserProfiles.fulfilled, (state, action) => {
+        state.usersLoading = false;
         state.allUsers = action.payload;
+      })
+      .addCase(getAllUserProfiles.rejected, (state) => {
+        state.usersLoading = false;
       })
 
       // getUserProfileById
