@@ -5,6 +5,16 @@ import ManageNotificationsCard from "../components/Notifications/ManageNotificat
 import NotificationItem from "../components/Notifications/NotificationItem";
 import { fetchNotifications } from "../redux/slices/notificationSlice";
 
+const NotificationSkeletonRow = () => (
+  <div className="flex items-center gap-3 p-4 sm:p-5 border-b border-gray-100 animate-pulse">
+    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gray-200 shrink-0" />
+    <div className="flex-1 space-y-2">
+      <div className="h-3 w-3/5 bg-gray-200 rounded" />
+      <div className="h-2.5 w-24 bg-gray-200 rounded" />
+    </div>
+  </div>
+);
+
 const Notifications = () => {
   const [activeTab, setActiveTab] = useState("all");
   const dispatch = useDispatch();
@@ -79,16 +89,18 @@ const Notifications = () => {
 
               {/* NOTIFICATIONS LIST */}
               {loading ? (
-                <div className="p-10 text-center text-gray-500 text-sm">
-                  Loading...
+                <div>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <NotificationSkeletonRow key={i} />
+                  ))}
                 </div>
               ) : filteredNotifications.length > 0 ? (
                 filteredNotifications.map((n) => (
                   <NotificationItem key={n._id} notification={n} />
                 ))
               ) : (
-                <div className="p-10 text-center text-gray-500 text-sm">
-                  You're all caught up 🎉
+                <div className="p-10 text-center font-bold text-gray-500 text-sm">
+                  No new notifications at the moment
                 </div>
               )}
             </div>
