@@ -16,12 +16,26 @@ const TABS = [
   { key: "connections", label: "Connections", fullLabel: "Connections" },
 ];
 
+const NetworkCardSkeleton = () => (
+  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm animate-pulse">
+    <div className="h-16 sm:h-20 w-full bg-gray-200" />
+    <div className="px-4 pb-4 text-center -mt-8">
+      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto bg-gray-300 border-4 border-white" />
+      <div className="h-3 w-20 bg-gray-200 rounded mx-auto mt-3" />
+      <div className="h-2.5 w-16 bg-gray-200 rounded mx-auto mt-2" />
+      <div className="h-7 w-full bg-gray-200 rounded-full mt-3" />
+    </div>
+  </div>
+);
+
 const Network = () => {
   const [activeTab, setActiveTab] = useState("discover");
 
   const dispatch = useDispatch();
 
-  const { profile, allUsers } = useSelector((state) => state.user);
+  const { profile, allUsers, usersLoading } = useSelector(
+    (state) => state.user,
+  );
   const { connections, sentRequests, pendingRequests } = useSelector(
     (state) => state.connections,
   );
@@ -82,7 +96,9 @@ const Network = () => {
                     <span className="block sm:hidden leading-tight text-center">
                       {label}
                     </span>
-                    <span className="hidden cursor-pointer sm:block">{fullLabel}</span>
+                    <span className="hidden cursor-pointer sm:block">
+                      {fullLabel}
+                    </span>
 
                     {count > 0 && (
                       <span
@@ -106,8 +122,14 @@ const Network = () => {
         <div className="space-y-3 sm:space-y-4">
           {activeTab === "discover" && (
             <>
-              {allUsers?.filter((u) => profile?._id && u._id !== profile._id)
-                ?.length === 0 ? (
+              {usersLoading ? (
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-5">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <NetworkCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : allUsers?.filter((u) => profile?._id && u._id !== profile._id)
+                  ?.length === 0 ? (
                 <div className="text-center py-12 text-gray-400 text-sm">
                   No people to discover right now.
                 </div>
