@@ -57,6 +57,24 @@ export const fetchSelf = createAsyncThunk(
   },
 );
 
+// Delete account (permanently deletes user + all related data)
+export const deleteAccount = createAsyncThunk(
+  "auth/deleteAccount",
+  async (password, { rejectWithValue }) => {
+    try {
+      await clientServer.delete("/api/users/delete_account", {
+        data: { password },
+        withCredentials: true,
+      });
+      return true;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete account",
+      );
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -106,7 +124,7 @@ const authSlice = createSlice({
 
       // Fetch self
       .addCase(fetchSelf.pending, (state) => {
-        state.loading = true; // ← this is what was missing
+        state.loading = true;
       })
       .addCase(fetchSelf.fulfilled, (state, action) => {
         state.loading = false;
@@ -115,6 +133,21 @@ const authSlice = createSlice({
       .addCase(fetchSelf.rejected, (state) => {
         state.loading = false;
         state.user = null; // not logged in
+      })
+
+      // Delete account
+      .addCase(deleteAccount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAccount.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+      })
+      .addCase(deleteAccount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
