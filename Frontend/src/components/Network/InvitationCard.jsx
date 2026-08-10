@@ -19,6 +19,9 @@ const InvitationCard = ({
   const user = type === "received" ? request?.userId : request?.connectionId;
   const profile = user?.profileId;
 
+  // Guard: the other user in this request was deleted from the DB
+  if (!user?._id) return null;
+
   const handleRespond = async (status) => {
     await dispatch(respondToRequest({ id: request._id, status }));
     dispatch(getConnectionsList(currentUserId));
@@ -30,9 +33,7 @@ const InvitationCard = ({
       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <img
           src={
-            user?.profilePicture
-              ? user.profilePicture // ← updated
-              : "/default_profile.jpg" // ← updated
+            user?.profilePicture ? user.profilePicture : "/default_profile.jpg"
           }
           alt="profile"
           className="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border border-gray-200 flex-shrink-0"
