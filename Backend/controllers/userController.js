@@ -1,5 +1,12 @@
 import User from "../models/user.js";
 import Profile from "../models/profile.js";
+import Post from "../models/post.js";
+import Comment from "../models/comments.js";
+import Notification from "../models/notification.js";
+import Connection from "../models/connection.js";
+import Conversation from "../models/conversation.js";
+import Message from "../models/message.js";
+import Story from "../models/story.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -89,11 +96,11 @@ export const uploadPictures = async (req, res) => {
     }
 
     if (req.files.profile_picture) {
-      user.profilePicture = req.files.profile_picture[0].path; // ← updated
+      user.profilePicture = req.files.profile_picture[0].path;
     }
 
     if (req.files.cover_picture) {
-      user.coverPicture = req.files.cover_picture[0].path; // ← updated
+      user.coverPicture = req.files.cover_picture[0].path;
     }
 
     await user.save();
@@ -251,6 +258,72 @@ export const updateUserAndProfile = async (req, res) => {
     return res.json(updatedUser);
   } catch (error) {
     console.error(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
+    // 1. Delete profile
+    await Profile.deleteOne({ userId });
+
+    // 2. Delete this user's posts, and any comments on those posts
+    const userPosts = await Post.find({ userId }).select("_id");
+    const postIds = userPosts.map((p) => p._id);
+    await Post.deleteMany({ userId });
+    await Comment.deleteMany({ postId: { $in: postIds } });
+
+    // 3. Delete comments this user made on other people's posts
+    await Comment.deleteMany({ userId });
+
+    // 4. Remove this user's likes from any remaining posts
+    await Post.updateMany({ likes: userId }, { $pull: { likes: userId } });
+
+    // 5. Delete connections (sent or received) involving this user
+    await Connection.deleteMany({
+      $or: [{ userId }, { connectionId: userId }],
+    });
+
+    // 6. Delete notifications where user is sender or receiver
+    await Notification.deleteMany({
+      $or: [{ sender: userId }, { receiver: userId }],
+    });
+
+    // 7. Delete conversations this user was part of, and their messages
+    const conversations = await Conversation.find({
+      members: userId,
+    }).select("_id");
+    const conversationIds = conversations.map((c) => c._id);
+    await Message.deleteMany({ conversation: { $in: conversationIds } });
+    await Conversation.deleteMany({ members: userId });
+
+    // 8. Delete stories
+    await Story.deleteMany({ user: userId });
+
+    // 9. Finally delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.clearCookie("token", cookieOptions);
+    return res.json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: error.message });
   }
 };

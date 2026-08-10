@@ -10,6 +10,7 @@ import {
   updateUserAndProfile,
   updateUserProfile,
   uploadPictures,
+  deleteAccount,
 } from "../controllers/userController.js";
 import { authentication } from "../middleware/auth.js";
 import upload from "../middleware/multer.js";
@@ -34,6 +35,7 @@ router.post("/update_profile_data", authentication, updateProfileData);
 router.get("/get_all_users", getAllUserProfile);
 router.get("/user/:id", getUserProfileById);
 router.post("/update_profile", authentication, updateUserAndProfile);
+router.delete("/delete_account", authentication, deleteAccount);
 
 router.get("/self", authentication, (req, res) => {
   return res.status(200).json({
