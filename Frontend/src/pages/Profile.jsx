@@ -16,7 +16,7 @@ import {
 } from "../redux/slices/connectionSlice";
 
 import { fetchUserPosts } from "../redux/slices/postSlice";
-import { logoutUser } from "../redux/slices/authSlice";
+import { logoutUser, deleteAccount } from "../redux/slices/authSlice";
 import { addConversation } from "../redux/slices/conversationSlice";
 
 import ProfileHeader from "../components/Profile/ProfileHeader";
@@ -28,6 +28,7 @@ import ActivitySection from "../components/Profile/ActivitySection";
 import EditProfileModal from "../components/Profile/EditProfileModal";
 
 import MessageModal from "../components/Profile/messageModal/MessageModal";
+import DeleteAccountModal from "../components/Profile/DeleteAccountModal";
 
 const ProfileSkeleton = () => (
   <div className="max-w-4xl mx-auto px-4 space-y-6 animate-pulse">
@@ -77,6 +78,8 @@ const Profile = () => {
 
   const [editType, setEditType] = useState(null);
   const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   const { profile, loading: userLoading } = useSelector((state) => state.user);
 
@@ -89,7 +92,9 @@ const Profile = () => {
 
   const { posts, loading: postLoading } = useSelector((state) => state.post);
 
-  const loggedInUser = useSelector((state) => state.auth.user);
+  const { user: loggedInUser, loading: authLoading } = useSelector(
+    (state) => state.auth,
+  );
 
   const isOwnProfile = loggedInUser?._id === userId;
 
@@ -150,6 +155,18 @@ const Profile = () => {
     }
   };
 
+  // Delete account permanently (password-confirmed)
+
+  const handleDeleteAccount = async (password) => {
+    setDeleteError(null);
+    try {
+      await dispatch(deleteAccount(password)).unwrap();
+      navigate("/signin");
+    } catch (err) {
+      setDeleteError(err || "Failed to delete account");
+    }
+  };
+
   const handleSendMessage = async (formData) => {
     try {
       await dispatch(addConversation(formData)).unwrap();
@@ -173,6 +190,10 @@ const Profile = () => {
           onConnect={handleConnect}
           onMessage={() => setShowMessageModal(true)}
           onLogout={handleLogout}
+          onDeleteAccount={() => {
+            setDeleteError(null);
+            setShowDeleteModal(true);
+          }}
           onEditHeader={isOwnProfile ? () => setEditType("header") : undefined}
           onEditPictures={
             isOwnProfile ? () => setEditType("pictures") : undefined
@@ -223,6 +244,15 @@ const Profile = () => {
           receiver={profile}
           onSend={handleSendMessage}
           onClose={() => setShowMessageModal(false)}
+        />
+      )}
+
+      {showDeleteModal && (
+        <DeleteAccountModal
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDeleteAccount}
+          loading={authLoading}
+          error={deleteError}
         />
       )}
     </div>
