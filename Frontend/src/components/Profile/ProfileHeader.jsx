@@ -1,5 +1,10 @@
 import { FaMapMarkerAlt, FaPencilAlt } from "react-icons/fa";
-import { FiUserPlus, FiMessageSquare, FiLogOut } from "react-icons/fi";
+import {
+  FiUserPlus,
+  FiMessageSquare,
+  FiLogOut,
+  FiTrash2,
+} from "react-icons/fi";
 import { IoCheckmarkCircle } from "react-icons/io5";
 import { MdPending } from "react-icons/md";
 
@@ -13,6 +18,7 @@ const ProfileHeader = ({
   onEditPictures,
   onConnect,
   onLogout,
+  onDeleteAccount,
   onMessage,
 }) => {
   const isOwnProfile = String(data?._id) === String(currentUserId);
@@ -61,11 +67,7 @@ const ProfileHeader = ({
       {/* COVER IMAGE */}
       <div className="relative">
         <img
-          src={
-            data?.coverPicture
-              ? data.coverPicture // ← updated
-              : "/default_banner.jpg" // ← updated
-          }
+          src={data?.coverPicture ? data.coverPicture : "/default_banner.jpg"}
           alt="cover"
           className="w-full h-56 object-cover"
         />
@@ -85,8 +87,8 @@ const ProfileHeader = ({
             <img
               src={
                 data?.profilePicture
-                  ? data.profilePicture // ← updated
-                  : "/default_profile.jpg" // ← updated
+                  ? data.profilePicture
+                  : "/default_profile.jpg"
               }
               alt="profile"
               className="w-28 h-28 rounded-full border-4 border-white object-cover shadow-md"
@@ -154,12 +156,23 @@ const ProfileHeader = ({
             )}
 
             {isOwnProfile && (
-              <button
-                onClick={onLogout}
-                className="p-3 rounded-full border border-red-200 text-red-600 hover:bg-red-50"
-              >
-                <FiLogOut size={18} />
-              </button>
+              <>
+                <button
+                  onClick={onLogout}
+                  title="Logout"
+                  className="p-3 rounded-full border border-red-200 text-red-600 hover:bg-red-50"
+                >
+                  <FiLogOut size={18} />
+                </button>
+
+                <button
+                  onClick={onDeleteAccount}
+                  title="Delete Account"
+                  className="p-3 rounded-full border border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
+                >
+                  <FiTrash2 size={18} />
+                </button>
+              </>
             )}
           </div>
         </div>
