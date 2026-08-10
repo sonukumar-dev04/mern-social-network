@@ -40,9 +40,11 @@ const Network = () => {
     (state) => state.connections,
   );
 
-  const incomingCount = pendingRequests?.length || 0;
-  const sentCount = sentRequests?.length || 0;
-
+  const incomingCount =
+    pendingRequests?.filter((req) => req?.userId?._id)?.length || 0;
+  const sentCount =
+    sentRequests?.filter((req) => req?.connectionId?._id)?.length || 0;
+    
   const activeIndex = TABS.findIndex((t) => t.key === activeTab);
 
   useEffect(() => {
@@ -176,14 +178,17 @@ const Network = () => {
 
           {activeTab === "received" && (
             <div className="space-y-3 sm:space-y-4">
-              {pendingRequests?.length > 0 ? (
-                pendingRequests.map((req) => (
-                  <InvitationCard
-                    key={req._id}
-                    type="received"
-                    pendingRequest={req}
-                  />
-                ))
+              {pendingRequests?.filter((req) => req?.userId?._id)?.length >
+              0 ? (
+                pendingRequests
+                  .filter((req) => req?.userId?._id)
+                  .map((req) => (
+                    <InvitationCard
+                      key={req._id}
+                      type="received"
+                      pendingRequest={req}
+                    />
+                  ))
               ) : (
                 <div className="text-center py-12 text-gray-400 text-sm">
                   No incoming requests.
@@ -194,10 +199,17 @@ const Network = () => {
 
           {activeTab === "sent" && (
             <div className="space-y-3 sm:space-y-4">
-              {sentRequests?.length > 0 ? (
-                sentRequests.map((req) => (
-                  <InvitationCard key={req._id} type="sent" sentRequest={req} />
-                ))
+              {sentRequests?.filter((req) => req?.connectionId?._id)?.length >
+              0 ? (
+                sentRequests
+                  .filter((req) => req?.connectionId?._id)
+                  .map((req) => (
+                    <InvitationCard
+                      key={req._id}
+                      type="sent"
+                      sentRequest={req}
+                    />
+                  ))
               ) : (
                 <div className="text-center py-12 text-gray-400 text-sm">
                   No sent requests.
