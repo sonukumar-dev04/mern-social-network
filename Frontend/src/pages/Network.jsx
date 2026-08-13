@@ -8,6 +8,7 @@ import {
   getSentRequests,
   getPendingRequests,
 } from "../redux/slices/connectionSlice";
+import { NetworkCardSkeleton } from "../components/Skeletons/Skeletons";
 
 const TABS = [
   { key: "discover", label: "Discover", fullLabel: "Discover People" },
@@ -15,18 +16,6 @@ const TABS = [
   { key: "sent", label: "Sent", fullLabel: "Sent Requests" },
   { key: "connections", label: "Connections", fullLabel: "Connections" },
 ];
-
-const NetworkCardSkeleton = () => (
-  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm animate-pulse">
-    <div className="h-16 sm:h-20 w-full bg-gray-200" />
-    <div className="px-4 pb-4 text-center -mt-8">
-      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mx-auto bg-gray-300 border-4 border-white" />
-      <div className="h-3 w-20 bg-gray-200 rounded mx-auto mt-3" />
-      <div className="h-2.5 w-16 bg-gray-200 rounded mx-auto mt-2" />
-      <div className="h-7 w-full bg-gray-200 rounded-full mt-3" />
-    </div>
-  </div>
-);
 
 const Network = () => {
   const [activeTab, setActiveTab] = useState("discover");
@@ -44,7 +33,7 @@ const Network = () => {
     pendingRequests?.filter((req) => req?.userId?._id)?.length || 0;
   const sentCount =
     sentRequests?.filter((req) => req?.connectionId?._id)?.length || 0;
-    
+
   const activeIndex = TABS.findIndex((t) => t.key === activeTab);
 
   useEffect(() => {
