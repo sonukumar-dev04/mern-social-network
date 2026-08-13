@@ -4,16 +4,7 @@ import ProfileCard from "../components/Dashboard/ProfileCard";
 import ManageNotificationsCard from "../components/Notifications/ManageNotificationsCard";
 import NotificationItem from "../components/Notifications/NotificationItem";
 import { fetchNotifications } from "../redux/slices/notificationSlice";
-
-const NotificationSkeletonRow = () => (
-  <div className="flex items-center gap-3 p-4 sm:p-5 border-b border-gray-100 animate-pulse">
-    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gray-200 shrink-0" />
-    <div className="flex-1 space-y-2">
-      <div className="h-3 w-3/5 bg-gray-200 rounded" />
-      <div className="h-2.5 w-24 bg-gray-200 rounded" />
-    </div>
-  </div>
-);
+import { NotificationSkeletonRow } from "../components/Skeletons/Skeletons";
 
 const Notifications = () => {
   const [activeTab, setActiveTab] = useState("all");
