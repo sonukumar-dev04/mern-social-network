@@ -5,13 +5,7 @@ import { fetchStories } from "../../redux/slices/storySlice";
 import CreateStoryModal from "./CreateStoryModal";
 import StoryViewer from "./StoryViewer/StoryViewer";
 import { isStorySeen } from "./StoryViewer/utils/storyUtils";
-
-const SkeletonAvatar = () => (
-  <div className="flex flex-col items-center gap-2 shrink-0 animate-pulse">
-    <div className="w-[57px] h-[57px] rounded-full bg-slate-100" />
-    <div className="w-10 h-2 rounded-full bg-slate-100" />
-  </div>
-);
+import { SkeletonAvatar } from "../Skeletons/Skeletons";
 
 const StoryAvatar = ({ group, onClick, seen }) => {
   const firstStory = group.stories[0];
